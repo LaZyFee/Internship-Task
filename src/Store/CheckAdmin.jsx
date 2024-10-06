@@ -3,19 +3,20 @@ import axios from "axios";
 const API_URL = "http://localhost:5001";
 
 const CheckAdmin = async () => {
+  const token = localStorage.getItem("token");
+
   try {
-    const token = localStorage.getItem("token");
     const response = await axios.get(`${API_URL}/check-admin`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
       withCredentials: true,
     });
-    console.log("Admin status:", response.data.isAdmin);
-    return [response.data.isAdmin, false];
+
+    return [response.data.isAdmin];
   } catch (error) {
     console.error("Error checking admin status:", error);
-    return [false, false];
+    return [false]; // Return false if there's an error
   }
 };
 

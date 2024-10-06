@@ -4,14 +4,14 @@ import { PrimaryButton } from "../../Components/PrimaryButton";
 
 const DisplayError = ({ message }) => {
   const navigate = useNavigate();
-  const { isAdmin } = useAuth();
+  const { isAdmin } = useAuth(); // Accessing isAdmin from Zustand store
 
   const handleGoBack = () => {
-    navigate(-1);
+    navigate(-1); // Navigate back to the previous page
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <div className="flex flex-col items-center justify-center h-screen mx-5">
       {isAdmin ? (
         <h1 className="text-4xl font-bold text-green-500">Welcome, Admin!</h1>
       ) : (
@@ -23,10 +23,7 @@ const DisplayError = ({ message }) => {
             {message || "Access denied"}
           </p>
           <div className="mt-4 flex gap-4">
-            {" "}
-            {/* Use flex to align buttons */}
             <PrimaryButton className="px-4 py-2" onClick={handleGoBack}>
-              {" "}
               Go Back
             </PrimaryButton>
             <Link to="/login">

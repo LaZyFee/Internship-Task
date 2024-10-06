@@ -3,10 +3,10 @@ import Loader from "../Pages/Shared/Loader";
 import { useAuth } from "./AuthStore";
 
 const AdminRoute = ({ children }) => {
-  const { user, isLoading, isAdmin, isAdminLoading } = useAuth();
+  const { user, isLoading, isAdmin } = useAuth();
   const location = useLocation();
 
-  if (isLoading || isAdminLoading) {
+  if (isLoading) {
     return <Loader />;
   }
 

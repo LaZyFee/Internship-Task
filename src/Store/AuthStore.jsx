@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
-import CheckAdmin from "./CheckAdmin";
-
+import CheckAdmin from "../Store/CheckAdmin";
 const API_URL = "http://localhost:5001";
 
 axios.defaults.withCredentials = true;
@@ -14,6 +13,9 @@ export const useAuth = create((set) => ({
   isAdmin: false,
   isAdminLoading: true,
 
+  // Method to set admin status
+  setIsAdmin: (isAdmin) => set({ isAdmin }),
+
   // Signup function
   signup: async (email, password, name) => {
     set({ isLoading: true, error: null });
@@ -23,20 +25,19 @@ export const useAuth = create((set) => ({
         password,
         name,
       });
-      const { user, token } = response.data; // Destructure token from response
+      const { user, token } = response.data;
 
       // Save both user and token in localStorage
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
 
-      // Check admin status after successful signup
-      const [isAdmin] = await CheckAdmin(user.email);
-
+      // Check admin status right after signup
+      const [isAdmin] = await CheckAdmin();
       set({
         user: response.data.user,
         isAuthenticated: true,
-        isAdmin,
         isLoading: false,
+        isAdmin, // Update admin status here
       });
     } catch (error) {
       set({
@@ -46,7 +47,6 @@ export const useAuth = create((set) => ({
       throw error;
     }
   },
-  // Login function
 
   // Login function
   login: async (email, password) => {
@@ -62,14 +62,13 @@ export const useAuth = create((set) => ({
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
 
-      // Check admin status after successful login
-      const [isAdmin] = await CheckAdmin(user.email);
-
+      // Check admin status right after login
+      const [isAdmin] = await CheckAdmin();
       set({
         user: response.data.user,
         isAuthenticated: true,
-        isAdmin, // Set admin status here
         isLoading: false,
+        isAdmin, // Update admin status here
       });
     } catch (error) {
       set({
@@ -106,14 +105,13 @@ export const useAuth = create((set) => ({
         const user = JSON.parse(event.newValue);
         const isAuthenticated = !!user;
         if (user) {
-          const [isAdmin, isAdminLoading] = await CheckAdmin(user.email); // Check admin status across tabs
-          set({ user, isAuthenticated, isAdmin, isAdminLoading });
+          const [isAdmin] = await CheckAdmin();
+          set({ user, isAuthenticated, isAdmin });
         } else {
           set({
             user: null,
             isAuthenticated: false,
             isAdmin: false,
-            isAdminLoading: false,
           });
         }
       }
@@ -124,12 +122,12 @@ export const useAuth = create((set) => ({
   checkAdminOnLoad: async () => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user) {
-      const [isAdmin, isAdminLoading] = await CheckAdmin(user.email);
+      const [isAdmin] = await CheckAdmin();
       set({
         user,
         isAuthenticated: true,
         isAdmin,
-        isAdminLoading,
+        isAdminLoading: false,
       });
     } else {
       set({ isAdminLoading: false });
