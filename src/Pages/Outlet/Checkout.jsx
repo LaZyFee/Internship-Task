@@ -1,8 +1,32 @@
 import { useForm } from "react-hook-form";
 import { Icon } from "@iconify/react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
+import { useState } from "react";
 
 function Checkout() {
+  const location = useLocation();
+  const total = parseFloat(
+    location.state?.total?.replace(/[^0-9.-]+/g, "") || "0"
+  );
+  const basePrice = total; // Example base price for the product
+  const addonPrices = {
+    none: 0,
+    payout: basePrice * 0.05, // 5% of the base price
+    profitSplit: 0, // No cost for profit split addon
+    both: basePrice * 0.05 - basePrice * 0.05 * 0.05, // Both addons with a 5% discount
+  };
+
+  const [selectedAddon, setSelectedAddon] = useState("none");
+  const [subTotal, setSubTotal] = useState(basePrice);
+
+  // Function to handle addon selection and update total
+  const handleAddonChange = (e) => {
+    const selected = e.target.value;
+    setSelectedAddon(selected);
+    // Ensure subTotal is calculated as a number
+    setSubTotal(basePrice + addonPrices[selected]);
+  };
+
   const {
     register,
     handleSubmit,
@@ -12,10 +36,11 @@ function Checkout() {
   const onSubmit = (data) => {
     console.log(data); // Process form data here
   };
+
   return (
     <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5 lg:mb-20">
       {/* Billing Details Section */}
-      <div className=" p-6 rounded-lg shadow-lg">
+      <div className="p-6 rounded-lg shadow-lg">
         <h2 className="text-2xl font-semibold mb-6">Billing Details</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -173,6 +198,8 @@ function Checkout() {
                 <input
                   type="radio"
                   name="addons"
+                  value="payout"
+                  onChange={handleAddonChange}
                   className="radio radio-primary"
                 />
                 <label className="ml-2">7 day payouts vs 14 Days</label>
@@ -186,17 +213,22 @@ function Checkout() {
                   <input
                     type="radio"
                     name="addons"
+                    value="profitSplit"
+                    onChange={handleAddonChange}
                     className="radio radio-primary"
                   />
-                  <label className="ml-2">90% profit split vs 85% </label>
+                  <label className="ml-2">90% profit split vs 85%</label>
                 </div>
                 <p className="ml-4">+0%</p>
               </div>
+
               <div className="flex justify-between items-center">
                 <div className="flex items-center">
                   <input
                     type="radio"
                     name="addons"
+                    value="both"
+                    onChange={handleAddonChange}
                     className="radio radio-primary"
                   />
                   <label className="ml-2">Both (Save 5%)</label>
@@ -217,58 +249,71 @@ function Checkout() {
             </div>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span>2 Step - Power Challenge (100K) × 1</span>
-                <span>$400.00</span>
+                <span>Selected Product</span>
+                <span>${basePrice.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>$400.00</span>
-              </div>
-              <div className="flex justify-between">
-                <span>7 day payouts vs 14 Days</span>
-                <span>$20.00</span>
-              </div>
+
+              {/* Conditionally render the selected addon in the order summary */}
+              {selectedAddon !== "none" && (
+                <div className="flex justify-between">
+                  <span>
+                    {selectedAddon === "payout"
+                      ? "7 day payouts vs 14 Days"
+                      : selectedAddon === "profitSplit"
+                      ? "90% profit split vs 85%"
+                      : "Both (Save 5%)"}
+                  </span>
+                  <span>
+                    {selectedAddon === "payout"
+                      ? `+$${addonPrices.payout.toFixed(2)}`
+                      : selectedAddon === "profitSplit"
+                      ? "$0.00"
+                      : `+$${addonPrices.both.toFixed(2)}`}
+                  </span>
+                </div>
+              )}
+
               <div className="flex justify-between font-semibold">
                 <span>Total</span>
-                <span>$420.00</span>
+                <span>${Number(subTotal).toFixed(2)}</span>{" "}
+                {/* Ensure subTotal is a number */}
               </div>
             </div>
           </div>
         </div>
-        <div>
-          <div className="mt-6">
-            <h3 className="text-xl font-semibold">Tazapay</h3>
+        {/* Checkout Button */}
+        <div className="mt-6">
+          <h3 className="text-xl font-semibold">Tazapay</h3>
 
-            <p className="text-xs text-gray-500 mt-2">
-              Your personal data will be used to process your order, support
-              your experience throughout this website, and for other purposes
-              described in our privacy policy.
-            </p>
-          </div>
-
-          <div className="mt-4">
-            <label className="flex items-center">
-              <input type="checkbox" className="checkbox checkbox-primary" />
-              <span className="ml-2 text-sm">
-                I have read and agree to the website terms and conditions *
-              </span>
-            </label>
-            <label className="flex items-center mt-2">
-              <input type="checkbox" className="checkbox checkbox-primary" />
-              <span className="ml-2 text-sm">
-                Create a new Account with these information
-              </span>
-            </label>
-          </div>
-
-          <NavLink
-            className="btn btn-info bg-primary-gradient text-white rounded-md lg:px-6 w-full mt-6"
-            to="/payment"
-          >
-            {" "}
-            <Icon icon="simple-icons:startrek" /> Procced to Payment
-          </NavLink>
+          <p className="text-xs text-gray-500 mt-2">
+            Your personal data will be used to process your order, support your
+            experience throughout this website, and for other purposes described
+            in our privacy policy.
+          </p>
         </div>
+
+        <div className="mt-4">
+          <label className="flex items-center">
+            <input type="checkbox" className="checkbox checkbox-primary" />
+            <span className="ml-2 text-sm">
+              I have read and agree to the website terms and conditions *
+            </span>
+          </label>
+          <label className="flex items-center mt-2">
+            <input type="checkbox" className="checkbox checkbox-primary" />
+            <span className="ml-2 text-sm">
+              Create a new Account with these information
+            </span>
+          </label>
+        </div>
+
+        <NavLink
+          className="btn btn-info bg-primary-gradient text-white rounded-md lg:px-6 w-full mt-6"
+          to="/payment"
+        >
+          {" "}
+          <Icon icon="simple-icons:startrek" /> Procced to Payment
+        </NavLink>
       </div>
     </div>
   );

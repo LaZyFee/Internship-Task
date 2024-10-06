@@ -5,7 +5,7 @@ import { HiMenuAlt2 } from "react-icons/hi";
 import { CiPower } from "react-icons/ci";
 
 const DashboardLayout = () => {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const drawerRef = useRef(null);
   const navigate = useNavigate();
@@ -31,15 +31,7 @@ const DashboardLayout = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:5001/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      await logout();
       navigate("/login");
     } catch (error) {
       console.error("Logout error:", error);
