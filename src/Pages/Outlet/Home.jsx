@@ -2,17 +2,20 @@ import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../Store/AuthStore";
+import { FaRegEdit, FaRegTrashAlt } from "react-icons/fa";
 
 function Home() {
+  const apiUrl = "http://localhost:5001";
   const [plans, setPlans] = useState([]);
   const [selectedSize, setSelectedSize] = useState("10000");
   const [editPlan, setEditPlan] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { isAdmin } = useAuth();
   const [total, setTotal] = useState("299");
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5001/plans/${selectedSize}`)
+      .get(`${apiUrl}/plans/${selectedSize}`)
       .then((response) => {
         setPlans(response.data);
         setTotal(response.data[0].details.weekend_holding);
@@ -28,7 +31,7 @@ function Home() {
 
   const handleDelete = (id) => {
     axios
-      .delete(`http://localhost:5001/plans/${id}`)
+      .delete(`${apiUrl}/plans/${id}`)
       .then(() => {
         const updatedPlans = plans.filter((plan) => plan._id !== id);
         setPlans(updatedPlans);
@@ -42,13 +45,13 @@ function Home() {
 
   const handleUpdate = (id, updatedDetails) => {
     axios
-      .put(`http://localhost:5001/plans/${id}`, updatedDetails)
+      .put(`${apiUrl}/plans/${id}`, updatedDetails)
       .then((response) => {
         const updatedPlans = plans.map((plan) =>
           plan._id === id ? response.data : plan
         );
-        setPlans(updatedPlans); // Update the UI with the edited plan
-        setEditPlan(null); // Clear the edit state
+        setPlans(updatedPlans);
+        setEditPlan(null);
       })
       .catch((error) => console.error("Error updating plan: ", error));
   };
@@ -95,10 +98,12 @@ function Home() {
               <thead>
                 <tr>
                   <th></th> {/* Empty header for the detail names column */}
-                  {plans.map((plan) => (
-                    <th key={plan.plan_name}>{plan.plan_name}</th>
-                  ))}
-                  {isAdmin && <th>Actions</th>}
+                  {plans.map(
+                    (plan) => (
+                      console.log(plan),
+                      (<th key={plan.plan_name}>{plan.plan_name}</th>)
+                    )
+                  )}
                 </tr>
               </thead>
 
@@ -181,18 +186,17 @@ function Home() {
                     <td>Actions</td>
                     {plans.map((plan) => (
                       <td key={plan.plan_name}>
-                        <button
-                          className="btn btn-warning"
-                          onClick={() => handleEdit(plan)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-error"
-                          onClick={() => handleDelete(plan._id)}
-                        >
-                          Delete
-                        </button>
+                        {/* Flexbox to align and space the icons */}
+                        <div className="flex space-x-4">
+                          <FaRegEdit
+                            className="cursor-pointer text-blue-500"
+                            onClick={() => handleEdit(plan)}
+                          />
+                          <FaRegTrashAlt
+                            className="cursor-pointer text-red-500"
+                            onClick={() => handleDelete(plan._id)}
+                          />
+                        </div>
                       </td>
                     ))}
                   </tr>
@@ -253,8 +257,17 @@ function Home() {
               placeholder="Trading Period"
               className="input input-bordered mt-2"
             />
-            {/* Add other fields similarly for Profit Target, Max Daily Loss, etc */}
-            <button className="btn btn-primary mt-2">Update</button>
+            {/* Add similar inputs for other details you want to allow editing */}
+            <button type="submit" className="btn btn-success mt-4">
+              Save Changes
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditPlan(null)}
+              className="btn btn-error mt-4 ml-2"
+            >
+              Cancel
+            </button>
           </form>
         )}
       </div>
