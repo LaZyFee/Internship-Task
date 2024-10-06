@@ -1,33 +1,42 @@
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../Store/AuthStore"; // Assuming you have useAuth set up
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../Store/AuthStore";
+import { PrimaryButton } from "../../Components/PrimaryButton";
 
 const DisplayError = ({ message }) => {
-  const { logout } = useAuth();
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate("/");
-    } catch (err) {
-      console.error("Error during logout:", err);
-    }
+  const handleGoBack = () => {
+    navigate(-1);
   };
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-4xl font-bold text-red-500">
-        Sorry, You Are Not an Admin
-      </h1>
-      <p className="text-lg text-red-400 mt-4">{message || "Access denied"}</p>
-
-      <h4 className="mt-4 text-xl">
-        Please{" "}
-        <button onClick={handleLogout} className="text-blue-500 underline">
-          Sign Out
-        </button>{" "}
-        and log back in.
-      </h4>
+      {isAdmin ? (
+        <h1 className="text-4xl font-bold text-green-500">Welcome, Admin!</h1>
+      ) : (
+        <>
+          <h1 className="text-4xl font-bold text-red-500">
+            Sorry, You Are Not an Admin
+          </h1>
+          <p className="text-lg text-red-400 mt-4">
+            {message || "Access denied"}
+          </p>
+          <div className="mt-4 flex gap-4">
+            {" "}
+            {/* Use flex to align buttons */}
+            <PrimaryButton className="px-4 py-2" onClick={handleGoBack}>
+              {" "}
+              Go Back
+            </PrimaryButton>
+            <Link to="/login">
+              <PrimaryButton className="px-4 py-2">
+                Login as Admin
+              </PrimaryButton>
+            </Link>
+          </div>
+        </>
+      )}
     </div>
   );
 };

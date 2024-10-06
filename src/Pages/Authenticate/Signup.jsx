@@ -5,6 +5,7 @@ import { useAuth } from "../../Store/AuthStore";
 import { Helmet } from "react-helmet";
 import PasswordStrengthMeter from "./PasswordStreantgMeter";
 import { PrimaryButton } from "../../Components/PrimaryButton";
+import { toast } from "react-hot-toast";
 
 const SignUp = () => {
   const {
@@ -22,6 +23,7 @@ const SignUp = () => {
 
     try {
       await signup(email, password, name);
+      toast.success("User created successfully");
       navigate("/");
     } catch (error) {
       setSignUPError(error.message || "Error signing up");

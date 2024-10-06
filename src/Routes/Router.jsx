@@ -27,6 +27,7 @@ export const router = createBrowserRouter([
       { path: "/payouts", element: <Payouts /> },
       { path: "/affiliate", element: <Afilliate /> },
       { path: "/help", element: <HelpCenter /> },
+      { path: "/error", element: <DisplayError /> },
     ],
   },
   {

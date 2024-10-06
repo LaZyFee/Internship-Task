@@ -2,7 +2,7 @@ import { create } from "zustand";
 import axios from "axios";
 import CheckAdmin from "./CheckAdmin";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5001";
 
 axios.defaults.withCredentials = true;
 
@@ -23,10 +23,19 @@ export const useAuth = create((set) => ({
         password,
         name,
       });
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      const { user, token } = response.data; // Destructure token from response
+
+      // Save both user and token in localStorage
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", token);
+
+      // Check admin status after successful signup
+      const [isAdmin] = await CheckAdmin(user.email);
+
       set({
         user: response.data.user,
         isAuthenticated: true,
+        isAdmin,
         isLoading: false,
       });
     } catch (error) {
@@ -38,6 +47,8 @@ export const useAuth = create((set) => ({
     }
   },
   // Login function
+
+  // Login function
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
@@ -45,16 +56,19 @@ export const useAuth = create((set) => ({
         email,
         password,
       });
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-      const [isAdmin, isAdminLoading] = await CheckAdmin(
-        response.data.user.email
-      ); // Check admin status after login
+      const { user, token } = response.data;
+
+      // Save both user and token in localStorage
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", token);
+
+      // Check admin status after successful login
+      const [isAdmin] = await CheckAdmin(user.email);
+
       set({
         user: response.data.user,
         isAuthenticated: true,
-        isAdmin, // Update admin state
-        isAdminLoading, // Update admin loading state
-        error: null,
+        isAdmin, // Set admin status here
         isLoading: false,
       });
     } catch (error) {
@@ -106,11 +120,11 @@ export const useAuth = create((set) => ({
     });
   },
 
-  // Check user admin status when app reloads or initializes
+  // Check admin status on app load
   checkAdminOnLoad: async () => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user) {
-      const [isAdmin, isAdminLoading] = await CheckAdmin(user.email); // Check admin status on page load
+      const [isAdmin, isAdminLoading] = await CheckAdmin(user.email);
       set({
         user,
         isAuthenticated: true,

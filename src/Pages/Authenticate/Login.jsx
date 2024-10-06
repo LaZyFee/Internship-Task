@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../Store/AuthStore";
 import { Helmet } from "react-helmet";
 import { PrimaryButton } from "../../Components/PrimaryButton";
+import { toast } from "react-hot-toast";
 
 const Login = () => {
   const {
@@ -11,18 +11,17 @@ const Login = () => {
     formState: { errors },
     handleSubmit,
   } = useForm();
-  const [loginError, setLoginError] = useState("");
   const navigate = useNavigate();
   const { login, isLoading, error } = useAuth();
 
   const handleLogin = async (data) => {
     const { email, password } = data;
-
     try {
       await login(email, password);
+      toast.success("User logged in successfully");
       navigate("/");
     } catch (error) {
-      setLoginError(error.message || "Error logging in");
+      toast.error(error.message || "Error logging in");
     }
   };
 
@@ -36,7 +35,6 @@ const Login = () => {
         <form onSubmit={handleSubmit(handleLogin)}>
           <div className="form-control w-full max-w-xs">
             <label className="label">
-              {" "}
               <span className="label-text">Email</span>
             </label>
             <input
@@ -50,10 +48,8 @@ const Login = () => {
               <p className="text-red-600">{errors.email.message}</p>
             )}
           </div>
-
           <div className="form-control w-full max-w-xs">
             <label className="label">
-              {" "}
               <span className="label-text">Password</span>
             </label>
             <input
@@ -71,9 +67,7 @@ const Login = () => {
               <p className="text-red-600">{errors.password.message}</p>
             )}
           </div>
-
           <label className="label">
-            {" "}
             <Link className="label-text" to="/forgot-password">
               Forget Password?
             </Link>
@@ -83,9 +77,8 @@ const Login = () => {
               {isLoading ? "Logging in..." : "Login"}
             </PrimaryButton>
           </div>
-
-          {loginError && <p className="text-red-600">{loginError}</p>}
-          {error && <p className="text-red-600">{error}</p>}
+          {error && <p className="text-red-600">{error}</p>}{" "}
+          {/* Display error from Zustand */}
         </form>
 
         <p>
