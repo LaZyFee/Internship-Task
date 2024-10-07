@@ -4,6 +4,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../Store/AuthStore";
 import { FaRegEdit, FaRegTrashAlt } from "react-icons/fa";
+import cardImage from "../../assets/Rectangle 1.png";
 
 function Home() {
   const apiUrl = "http://localhost:5001";
@@ -18,6 +19,7 @@ function Home() {
       .get(`${apiUrl}/plans/${selectedSize}`)
       .then((response) => {
         setPlans(response.data);
+        console.log(response.data);
         setTotal(response.data[0].details.weekend_holding);
       })
       .catch((error) => {
@@ -29,6 +31,14 @@ function Home() {
     setSelectedSize(size);
   };
 
+  const handleEdit = (plan) => {
+    if (plan._id) {
+      setEditPlan(plan);
+    } else {
+      console.error("Plan does not have a valid ID:", plan);
+    }
+  };
+
   const handleDelete = (id) => {
     axios
       .delete(`${apiUrl}/plans/${id}`)
@@ -37,10 +47,6 @@ function Home() {
         setPlans(updatedPlans);
       })
       .catch((error) => console.error("Error deleting plan: ", error));
-  };
-
-  const handleEdit = (plan) => {
-    setEditPlan(plan);
   };
 
   const handleUpdate = (id, updatedDetails) => {
@@ -98,12 +104,9 @@ function Home() {
               <thead>
                 <tr>
                   <th></th> {/* Empty header for the detail names column */}
-                  {plans.map(
-                    (plan) => (
-                      console.log(plan),
-                      (<th key={plan.plan_name}>{plan.plan_name}</th>)
-                    )
-                  )}
+                  {plans.map((plan) => (
+                    <th key={plan.plan_name}>{plan.plan_name}</th>
+                  ))}
                 </tr>
               </thead>
 
@@ -114,7 +117,9 @@ function Home() {
                   <td>Trading Period</td>
                   {plans.map((plan) => (
                     <td key={plan.plan_name}>
-                      {plan.details.trading_period} days
+                      {plan.details && plan.details.trading_period
+                        ? `${plan.details.trading_period} days`
+                        : "N/A"}
                     </td>
                   ))}
                   {isAdmin && <td></td>}
@@ -124,7 +129,11 @@ function Home() {
                 <tr>
                   <td>Profit Target</td>
                   {plans.map((plan) => (
-                    <td key={plan.plan_name}>{plan.details.profit_target}</td>
+                    <td key={plan.plan_name}>
+                      {plan.details && plan.details.profit_target !== undefined
+                        ? plan.details.profit_target
+                        : "N/A"}
+                    </td>
                   ))}
                   {isAdmin && <td></td>}
                 </tr>
@@ -134,7 +143,10 @@ function Home() {
                   <td>Maximum Daily Loss</td>
                   {plans.map((plan) => (
                     <td key={plan.plan_name}>
-                      {plan.details.maximum_daily_loss}
+                      {plan.details &&
+                      plan.details.maximum_daily_loss !== undefined
+                        ? plan.details.maximum_daily_loss
+                        : "N/A"}
                     </td>
                   ))}
                   {isAdmin && <td></td>}
@@ -145,7 +157,10 @@ function Home() {
                   <td>Maximum Overall Loss</td>
                   {plans.map((plan) => (
                     <td key={plan.plan_name}>
-                      {plan.details.maximum_overall_loss}
+                      {plan.details &&
+                      plan.details.maximum_overall_loss !== undefined
+                        ? plan.details.maximum_overall_loss
+                        : "N/A"}
                     </td>
                   ))}
                   {isAdmin && <td></td>}
@@ -155,7 +170,11 @@ function Home() {
                 <tr>
                   <td>Drawdown Type</td>
                   {plans.map((plan) => (
-                    <td key={plan.plan_name}>{plan.details.drawdown_type}</td>
+                    <td key={plan.plan_name}>
+                      {plan.details && plan.details.drawdown_type !== undefined
+                        ? plan.details.drawdown_type
+                        : "N/A"}
+                    </td>
                   ))}
                   {isAdmin && <td></td>}
                 </tr>
@@ -165,7 +184,11 @@ function Home() {
                   <td>News Trading</td>
                   {plans.map((plan) => (
                     <td key={plan.plan_name}>
-                      {plan.details.news_trading ? "Yes" : "No"}
+                      {plan.details && plan.details.news_trading !== undefined
+                        ? plan.details.news_trading
+                          ? "Yes"
+                          : "No"
+                        : "N/A"}
                     </td>
                   ))}
                   {isAdmin && <td></td>}
@@ -175,7 +198,12 @@ function Home() {
                 <tr>
                   <td>Weekend Holding</td>
                   {plans.map((plan) => (
-                    <td key={plan.plan_name}>{plan.details.weekend_holding}</td>
+                    <td key={plan.plan_name}>
+                      {plan.details &&
+                      plan.details.weekend_holding !== undefined
+                        ? plan.details.weekend_holding
+                        : "N/A"}
+                    </td>
                   ))}
                   {isAdmin && <td></td>}
                 </tr>
@@ -186,7 +214,6 @@ function Home() {
                     <td>Actions</td>
                     {plans.map((plan) => (
                       <td key={plan.plan_name}>
-                        {/* Flexbox to align and space the icons */}
                         <div className="flex space-x-4">
                           <FaRegEdit
                             className="cursor-pointer text-blue-500"
@@ -216,7 +243,7 @@ function Home() {
               </p>
 
               <figure>
-                <img src="src/assets/Rectangle 1.png" alt="card image" />
+                <img src={cardImage} alt="card image" />
               </figure>
               <div className="my-2">Total: {total}</div>
               <Link
@@ -244,19 +271,20 @@ function Home() {
             </h3>
             <input
               type="text"
-              value={editPlan.details.trading_period}
+              value={editPlan.details.profit_target}
               onChange={(e) =>
                 setEditPlan({
                   ...editPlan,
                   details: {
                     ...editPlan.details,
-                    trading_period: e.target.value,
+                    profit_target: e.target.value,
                   },
                 })
               }
-              placeholder="Trading Period"
+              placeholder="Profit Target"
               className="input input-bordered mt-2"
             />
+
             {/* Add similar inputs for other details you want to allow editing */}
             <button type="submit" className="btn btn-success mt-4">
               Save Changes

@@ -14,6 +14,8 @@ import Dashboard from "../Pages/AdminPages/Dashboard/Dashboard";
 import DisplayError from "../Pages/Shared/DisplayError";
 import DashboardLayout from "../Layouts/DashboardLayouts";
 import Checkout from "../Pages/Outlet/Checkout";
+import PaymentSuccess from "../Pages/Outlet/PaymentSuccess";
+import PaymentCancel from "../Pages/Outlet/PaymentCancel";
 
 export const router = createBrowserRouter([
   {
@@ -28,6 +30,8 @@ export const router = createBrowserRouter([
       { path: "/affiliate", element: <Afilliate /> },
       { path: "/help", element: <HelpCenter /> },
       { path: "/error", element: <DisplayError /> },
+      { path: "/payment-success", element: <PaymentSuccess /> },
+      { path: "/payment-cancel", element: <PaymentCancel /> },
     ],
   },
   {
