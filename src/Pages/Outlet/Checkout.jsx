@@ -4,7 +4,6 @@ import { Icon } from "@iconify/react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { Helmet } from "react-helmet";
-import { toast } from "react-hot-toast";
 
 function Checkout() {
   const location = useLocation();
@@ -49,10 +48,6 @@ function Checkout() {
       phone: data.phone,
       amount: subTotal,
       currency: "USD",
-      description: "Payment for Tazapay",
-      metadata: {
-        order_id: "1234567890",
-      },
     };
 
     try {
