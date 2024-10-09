@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { useAuth } from "../Store/AuthStore";
 import { HiMenuAlt2 } from "react-icons/hi";
 import { CiPower } from "react-icons/ci";
+import { FaHome } from "react-icons/fa";
 
 const DashboardLayout = () => {
-  const { user, isAdmin, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const drawerRef = useRef(null);
   const navigate = useNavigate();
@@ -64,12 +63,20 @@ const DashboardLayout = () => {
             &times;
           </button>
           <div className="flex flex-col justify-between h-full">
-            <div>
+            <div className="mt-10">
               <ul className="menu p-4">
                 <li>
-                  <button className="text-2xl m-3" onClick={handleLogout}>
+                  <button
+                    className="btn btn-ghost text-2xl m-3"
+                    onClick={handleLogout}
+                  >
                     <CiPower /> <p className="text-sm">Logout</p>
                   </button>
+                </li>
+                <li>
+                  <Link to="/" className=" btn btn-ghost text-2xl m-3">
+                    <FaHome /> <p className="text-sm">Home</p>
+                  </Link>
                 </li>
               </ul>
             </div>

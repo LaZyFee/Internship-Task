@@ -13,7 +13,14 @@ const DisplayError = ({ message }) => {
   return (
     <div className="flex flex-col items-center justify-center h-screen mx-5">
       {isAdmin ? (
-        <h1 className="text-4xl font-bold text-green-500">Welcome, Admin!</h1>
+        <>
+          <h1 className="text-4xl font-bold text-green-500">Welcome, Admin!</h1>
+          <Link to="/dashboard">
+            <PrimaryButton className="px-4 py-2 mt-4">
+              Visit Dashboard
+            </PrimaryButton>
+          </Link>
+        </>
       ) : (
         <>
           <h1 className="text-4xl font-bold text-red-500">
