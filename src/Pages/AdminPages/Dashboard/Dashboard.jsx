@@ -1,6 +1,8 @@
 import { Helmet } from "react-helmet";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { IoMdRefresh } from "react-icons/io";
+import { toast } from "react-hot-toast";
 
 function Dashboard() {
   const [customers, setCustomers] = useState([]);
@@ -11,21 +13,29 @@ function Dashboard() {
   const API_URL =
     import.meta.env.VITE_REACT_APP_API_URL || "http://localhost:5001";
 
-  useEffect(() => {
-    const fetchCustomersWithPayments = async () => {
-      try {
-        const res = await axios.get(`${API_URL}/customers-with-payments`);
-        setCustomers(res.data.customers);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching customers with payments:", err);
-        setError("Failed to load customers");
-        setLoading(false);
-      }
-    };
+  const fetchCustomersWithPayments = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/customers-with-payments`);
+      setCustomers(res.data.customers);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching customers with payments:", err);
+      setError("Failed to load customers");
+      setLoading(false);
+    }
+  };
 
+  // Fetch customers when the component mounts
+  useEffect(() => {
     fetchCustomersWithPayments();
   }, [API_URL]);
+
+  // Handler to refresh the table data
+  const handleRefresh = () => {
+    setLoading(true); // Optionally show loading while fetching
+    fetchCustomersWithPayments();
+    toast.success("Data refreshed successfully");
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -40,7 +50,13 @@ function Dashboard() {
       <Helmet>
         <title>Dashboard | Internship Task</title>
       </Helmet>
-      <h1>All Customers Dashboard</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-purple-900">Dashboard</h1>
+        <button className="btn btn-ghost" onClick={handleRefresh}>
+          {" "}
+          Refresh <IoMdRefresh className="w-6 h-6 cursor-pointer" />
+        </button>
+      </div>
 
       <div className="overflow-x-auto">
         <table className="table">
