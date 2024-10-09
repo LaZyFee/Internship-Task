@@ -19,7 +19,6 @@ function Home() {
       .get(`${apiUrl}/plans/${selectedSize}`)
       .then((response) => {
         setPlans(response.data);
-        console.log(response.data);
         setTotal(response.data[0].details.weekend_holding);
       })
       .catch((error) => {

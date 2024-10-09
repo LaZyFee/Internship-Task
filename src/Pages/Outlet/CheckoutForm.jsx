@@ -1,71 +1,138 @@
-import {
-  CardElement,
-  Elements,
-  useElements,
-  useStripe,
-} from "@stripe/react-stripe-js";
-function CheckoutForm() {
+import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+
+function CheckoutForm({ customerInfo, amount }) {
   const stripe = useStripe();
   const elements = useElements();
+  const navigate = useNavigate();
+  const [clientSecret, setClientSecret] = useState("");
+  const [submitDisabled, setSubmitDisabled] = useState(true);
+  const [cardError, setCardError] = useState("");
+  const [processing, setProcessing] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [transactionId, setTransactionId] = useState("");
+
+  const API_URL =
+    import.meta.env.VITE_REACT_APP_API_URL || "http://localhost:5001";
+
+  useEffect(() => {
+    const createPaymentIntent = async () => {
+      try {
+        const res = await axios.post(`${API_URL}/create-payment-intent`, {
+          amount, // amount in cents
+          customer: customerInfo,
+        });
+        setClientSecret(res.data.clientSecret);
+        setSubmitDisabled(false);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to create payment intent");
+      }
+    };
+
+    createPaymentIntent();
+  }, [amount, customerInfo, API_URL]);
 
   const handleSubmit = async (event) => {
-    // Block native form submission.
     event.preventDefault();
 
-    if (!stripe || !elements) {
-      // Stripe.js has not loaded yet. Make sure to disable
-      // form submission until Stripe.js has loaded.
+    if (!stripe || !elements || submitDisabled) {
       return;
     }
 
-    // Get a reference to a mounted CardElement. Elements knows how
-    // to find your CardElement because there can only ever be one of
-    // each type of element.
+    setSubmitDisabled(true);
+    setProcessing(true);
+
     const card = elements.getElement(CardElement);
-
-    if (card == null) {
+    if (!card) {
       return;
     }
 
-    // Use your card Element with other Stripe.js APIs
     const { error, paymentMethod } = await stripe.createPaymentMethod({
       type: "card",
       card,
     });
 
     if (error) {
-      console.log("[error]", error);
-    } else {
-      console.log("[PaymentMethod]", paymentMethod);
+      setCardError(error.message);
+      setSubmitDisabled(false);
+      setProcessing(false);
+      return;
+    }
+
+    setCardError("");
+
+    try {
+      const { paymentIntent, error: intentError } =
+        await stripe.confirmCardPayment(clientSecret, {
+          payment_method: {
+            card: card,
+            billing_details: {
+              name: customerInfo.name,
+              email: customerInfo.email,
+            },
+          },
+        });
+
+      if (intentError) {
+        setCardError(intentError.message);
+        setSubmitDisabled(false);
+        setProcessing(false);
+        return;
+      }
+
+      if (paymentIntent.status === "succeeded") {
+        const payment = {
+          transactionId: paymentIntent.id,
+          amount: paymentIntent.amount,
+          customer: customerInfo,
+        };
+
+        await axios.post(`${API_URL}/payments`, payment);
+        setProcessing(false);
+        setSuccess(true);
+        setTransactionId(paymentIntent.id);
+        toast.success("Payment successful!");
+
+        navigate("/payment-success", {
+          state: { transactionId: paymentIntent.id },
+        });
+      }
+    } catch (error) {
+      console.error("Error confirming card payment: ", error);
+      setCardError("Payment confirmation failed");
+      setSubmitDisabled(false);
+      setProcessing(false);
     }
   };
+
   return (
-    <div className="w-96 mx-auto card shadow-xl place-content-center">
+    <div className="w-screen lg:w-96 mx-auto card shadow-xl place-content-center my-10">
       <form onSubmit={handleSubmit}>
         <CardElement
           options={{
             style: {
               base: {
-                fontSize: "16px",
-                color: "#424770",
-                "::placeholder": {
-                  color: "#aab7c4",
-                },
+                fontSize: "18px",
+                color: "white",
+                "::placeholder": { color: "white" },
               },
-              invalid: {
-                color: "#9e2146",
-              },
+              invalid: { color: "#9e2146" },
             },
           }}
         />
         <button
-          className="btn btn-primary p-2 my-6"
+          className="btn btn-primary mt-4 py-5 text-white my-5"
           type="submit"
-          disabled={!stripe}
+          disabled={!stripe || !clientSecret || processing || submitDisabled}
         >
-          Pay
+          {processing ? "Processing..." : "Pay"}
         </button>
       </form>
+      <p className="text-red-500">{cardError}</p>
     </div>
   );
 }
