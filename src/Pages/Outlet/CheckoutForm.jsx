@@ -16,7 +16,8 @@ function CheckoutForm({ customerInfo, amount }) {
   const [transactionId, setTransactionId] = useState("");
 
   const API_URL =
-    import.meta.env.VITE_REACT_APP_API_URL || "http://localhost:5001";
+    import.meta.env.VITE_REACT_APP_API_URL ||
+    "https://internship-task-server-tau.vercel.app";
 
   useEffect(() => {
     const createPaymentIntent = async () => {

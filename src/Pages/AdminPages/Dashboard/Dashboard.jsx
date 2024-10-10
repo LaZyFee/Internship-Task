@@ -10,8 +10,7 @@ function Dashboard() {
   const [error, setError] = useState(null);
 
   // Store API_URL in an environment variable or a config file
-  const API_URL =
-    import.meta.env.VITE_REACT_APP_API_URL || "http://localhost:5001";
+  const API_URL = "https://internship-task-server-tau.vercel.app";
 
   const fetchCustomersWithPayments = async () => {
     try {
@@ -28,6 +27,7 @@ function Dashboard() {
   // Fetch customers when the component mounts
   useEffect(() => {
     fetchCustomersWithPayments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [API_URL]);
 
   // Handler to refresh the table data

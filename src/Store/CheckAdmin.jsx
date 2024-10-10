@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5001";
+const API_URL = "https://internship-task-server-tau.vercel.app";
 
 const CheckAdmin = async () => {
   const token = localStorage.getItem("token");
