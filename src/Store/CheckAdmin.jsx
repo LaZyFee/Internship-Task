@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://internship-task-server-tau.vercel.app";
+const API_URL = "https://internship-task-server.up.railway.app";
 
 const CheckAdmin = async () => {
   const token = localStorage.getItem("token");

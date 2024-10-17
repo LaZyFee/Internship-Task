@@ -7,7 +7,7 @@ import { FaRegEdit, FaRegTrashAlt } from "react-icons/fa";
 import cardImage from "../../assets/Rectangle 1.png";
 
 function Home() {
-  const apiUrl = "https://internship-task-server-tau.vercel.app";
+  const apiUrl = "https://internship-task-server.up.railway.app";
   const [plans, setPlans] = useState([]);
   const [selectedSize, setSelectedSize] = useState("10000");
   const [editPlan, setEditPlan] = useState(null);
