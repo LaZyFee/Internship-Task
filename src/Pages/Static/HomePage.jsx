@@ -1,8 +1,8 @@
-import About from "./About/About";
-import BookForm from "./Book/BookForm";
-import Footer from "./Footer/Footer";
-import Hero from "./Hero/hero";
-import CarouselCard from "./Popular/CarouselCard";
+import About from "./About/About.jsx";
+import BookForm from "./Book/BookForm.jsx";
+import Footer from "./Footer/Footer.jsx";
+import Hero from "./Hero/Hero.jsx";
+import CarouselCard from "./Popular/CarouselCard.jsx";
 
 function HomePage() {
   return (
