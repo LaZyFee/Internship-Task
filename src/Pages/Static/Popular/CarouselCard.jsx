@@ -60,11 +60,11 @@ function CarouselCard() {
       >
         {CardData.map((data) => (
           <SwiperSlide key={data.id} className="flex justify-center">
-            <div className="card bg-base-100 shadow-xl h-80">
+            <div className="card shadow-xl">
               <figure className="px-10 pt-10">
                 <img src={data.image} alt={data.name} />
               </figure>
-              <div className="border-b-2 border-red-600 w-1/3 place-self-center my-2"></div>
+              <div className="border-b-2 border-red-600 w-1/4 place-self-center my-2"></div>
               <div className="card-body">
                 <h2 className="card-title uppercase whitespace-nowrap">
                   {data.name}
