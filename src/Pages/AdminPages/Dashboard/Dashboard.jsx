@@ -10,7 +10,7 @@ function Dashboard() {
   const [error, setError] = useState(null);
 
   // Store API_URL in an environment variable or a config file
-  const API_URL = "https://internship-task-server.up.railway.app";
+  const API_URL = "https://internship-task-server-navy.vercel.app";
 
   const fetchCustomersWithPayments = async () => {
     try {

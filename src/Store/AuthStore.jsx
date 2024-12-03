@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 import CheckAdmin from "../Store/CheckAdmin";
-const API_URL = "https://internship-task-server.up.railway.app";
+const API_URL = "https://internship-task-server-navy.vercel.app";
 
 axios.defaults.withCredentials = true;
 
